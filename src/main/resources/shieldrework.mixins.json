@@ -10,6 +10,7 @@
     "PlayerEntityMixin"
   ],
   "client": [
+    "ShieldModelRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

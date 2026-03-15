@@ -1,11 +1,13 @@
 package dev.rosenoire.shieldrework.common.cca;
 
+import dev.rosenoire.shieldrework.common.index.ModDataComponentTypes;
 import dev.rosenoire.shieldrework.common.index.ModEntityComponents;
 import dev.rosenoire.shieldrework.common.index.ModItemTags;
 import dev.rosenoire.shieldrework.common.index.ModSounds;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.ShieldItem;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
 import net.minecraft.util.Hand;
@@ -103,6 +105,22 @@ public class ShieldComponent implements Component, AutoSyncedComponent, CommonTi
 
     @Override
     public void tick() {
+        // if (player.getEntityWorld().isClient()) {
+        //     GizmoDrawing.text("Current Health: " + MathHelper.roundDownToMultiple(currentHealth() * 10f, 10) / 10f, player.getEntityPos().add(0, 3.2, 0), TextGizmo.Style.left(0xffffffff));
+        //     GizmoDrawing.text("Current Progress: " + MathHelper.roundDownToMultiple(currentHealthProgress() * 10f, 10) / 10f, player.getEntityPos().add(0, 3, 0), TextGizmo.Style.left(0xffffffff));
+        //     GizmoDrawing.text("Can Regenerate Health: " + canRegenerateHealth(), player.getEntityPos().add(0, 2.8, 0), TextGizmo.Style.left(0xffffffff));
+        //
+        //     float closestMultiple = MathHelper.roundUpToMultiple(MathHelper.ceil(currentHealthProgress() * 100), 10) / 100f;
+        //     int multiple = MathHelper.clamp(11 - MathHelper.roundUpToMultiple(MathHelper.ceil(currentHealthProgress() * 100), 10) / 10, 1, 10);
+        //     GizmoDrawing.text("Closest Multiple: " + multiple, player.getEntityPos().add(0, 2.6, 0), TextGizmo.Style.left(0xffffffff));
+        // }
+
+        if (player.isUsingItem() && player.getActiveItem().isOf(Items.SHIELD)) {
+            player.getActiveItem().set(ModDataComponentTypes.OWNER, player.getUuid());
+        }
+
+        sync();
+
         if (!canRegenerateHealth()) {
             return;
         }

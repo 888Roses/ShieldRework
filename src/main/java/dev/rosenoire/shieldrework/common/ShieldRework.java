@@ -1,6 +1,7 @@
 package dev.rosenoire.shieldrework.common;
 
 import dev.rosenoire.shieldrework.common.cca.ShieldComponent;
+import dev.rosenoire.shieldrework.common.index.ModDataComponentTypes;
 import dev.rosenoire.shieldrework.common.index.ModItemTags;
 import dev.rosenoire.shieldrework.common.index.ModSounds;
 import net.fabricmc.api.ModInitializer;
@@ -20,6 +21,7 @@ public class ShieldRework implements ModInitializer {
     public void onInitialize() {
         ModItemTags.register();
         ModSounds.register();
+        ModDataComponentTypes.register();
 
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((livingEntity, damageSource, v) -> {
             if (livingEntity instanceof PlayerEntity player) {
