@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "shield_rework",
+  "version": "${version}",
+  "name": "ShieldRework",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/shieldrework/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "dev.rosenoire.shieldrework.client.ShieldReworkClient"
+    ],
+    "main": [
+      "dev.rosenoire.shieldrework.common.ShieldRework"
+    ],
+    "cardinal-components-entity": [
+      "dev.rosenoire.shieldrework.common.index.ModEntityComponents"
+    ]
+  },
+  "mixins": [
+    "shieldrework.mixins.json"
+  ],
+  "custom": {
+    "cardinal-components": [
+      "shield_rework:shield"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

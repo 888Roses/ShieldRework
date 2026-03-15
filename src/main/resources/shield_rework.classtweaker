@@ -1,0 +1,2 @@
+classTweaker v1 named
+accessible method net/minecraft/entity/LivingEntity knockback (Lnet/minecraft/entity/LivingEntity;)V

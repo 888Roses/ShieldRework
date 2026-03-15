@@ -1,0 +1,8 @@
+{
+  "shield_damaged": {
+    "sounds": [
+      "shield_rework:shield_damaged"
+    ],
+    "subtitle": "Shield Damaged"
+  }
+}
