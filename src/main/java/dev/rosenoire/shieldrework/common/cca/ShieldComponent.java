@@ -103,15 +103,6 @@ public class ShieldComponent implements Component, AutoSyncedComponent, CommonTi
 
     @Override
     public void tick() {
-        if (!player.getEntityWorld().isClient()) {
-            GizmoDrawing.text("Current Health: " + MathHelper.roundDownToMultiple(currentHealth() * 10f, 10) / 10f, player.getEntityPos().add(0, 3.2, 0), TextGizmo.Style.left(0xffffffff));
-            GizmoDrawing.text("Current Progress: " + MathHelper.roundDownToMultiple(currentHealthProgress() * 10f, 10) / 10f, player.getEntityPos().add(0, 3, 0), TextGizmo.Style.left(0xffffffff));
-            GizmoDrawing.text("Can Regenerate Health: " + canRegenerateHealth(), player.getEntityPos().add(0, 2.8, 0), TextGizmo.Style.left(0xffffffff));
-
-            float closestMultiple = MathHelper.roundUpToMultiple(MathHelper.ceil(currentHealthProgress() * 100), 10) / 100f;
-            GizmoDrawing.text("Closest Multiple: " + MathHelper.roundDownToMultiple(closestMultiple * 100f, 10) / 100f, player.getEntityPos().add(0, 2.6, 0), TextGizmo.Style.left(0xffffffff));
-        }
-
         if (!canRegenerateHealth()) {
             return;
         }
