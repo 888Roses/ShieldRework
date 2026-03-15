@@ -6,6 +6,7 @@ import dev.rosenoire.shieldrework.common.index.ModSounds;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class ShieldRework implements ModInitializer {
@@ -25,7 +26,11 @@ public class ShieldRework implements ModInitializer {
                 ShieldComponent component = ShieldComponent.get(player);
                 float delay = livingEntity.getEntityWorld().getTime() - component.lastHitTick();
 
-                if (component.isBroken() || component.currentHealth() <= 0) {
+                // if (damageSource.getAttacker() instanceof PlayerEntity attacker) {
+                //     attacker.sendMessage(Text.literal("Delay: " + delay), false);
+                // }
+
+                if (player.isUsingItem() || component.currentHealth() <= 0) {
                     return delay > 10;
                 }
             }

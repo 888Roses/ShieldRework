@@ -10,6 +10,8 @@ import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.debug.gizmo.Gizmo;
 import net.minecraft.world.debug.gizmo.GizmoDrawing;
 import net.minecraft.world.debug.gizmo.TextGizmo;
 import org.jetbrains.annotations.Nullable;
@@ -137,11 +139,17 @@ public class ShieldComponent implements Component, AutoSyncedComponent, CommonTi
             );
         }
 
-        if (currentHealth <= 0) {
+        boolean broke = currentHealth <= 0;
+
+        if (itemStack.isIn(ModItemTags.EXTRA_SHIELD_DAMAGE)) {
+            player.timeUntilRegen = 10;
+        }
+
+        if (broke) {
             player.getItemCooldownManager().set(itemStack, 20 * 5);
             player.stopUsingItem();
         }
 
-        return currentHealth <= 0;
+        return broke;
     }
 }
