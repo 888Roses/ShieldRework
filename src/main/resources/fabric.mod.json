@@ -2,12 +2,14 @@
   "schemaVersion": 1,
   "id": "shield_rework",
   "version": "${version}",
-  "name": "ShieldRework",
-  "description": "",
-  "authors": [],
+  "name": "Shield Rework",
+  "description": "Shields now have a health bar and can be broken by any item.",
+  "authors": [
+    "Rosenoire"
+  ],
   "contact": {},
   "license": "All-Rights-Reserved",
-  "icon": "assets/shieldrework/icon.png",
+  "icon": "assets/shield_rework/icon.png",
   "environment": "*",
   "entrypoints": {
     "client": [
