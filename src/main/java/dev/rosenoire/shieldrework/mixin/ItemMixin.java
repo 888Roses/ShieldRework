@@ -16,6 +16,12 @@ public class ItemMixin {
     @WrapMethod(method = "isItemBarVisible")
     private boolean shieldRework$isItemBarVisible(ItemStack stack, Operation<Boolean> original) {
         if (stack.isOf(Items.SHIELD)) {
+            ClientPlayerEntity clientPlayer = MinecraftClient.getInstance().player;
+
+            if (clientPlayer != null && ShieldComponent.get(clientPlayer).currentHealthProgress() >= 1) {
+                return false;
+            }
+
             return true;
         }
 
@@ -27,7 +33,7 @@ public class ItemMixin {
         if (stack.isOf(Items.SHIELD)) {
             ClientPlayerEntity clientPlayer = MinecraftClient.getInstance().player;
 
-            if (clientPlayer != null){
+            if (clientPlayer != null) {
                 float progress = ShieldComponent.get(clientPlayer).currentHealthProgress();
                 return MathHelper.ceil(progress * 13);
             }

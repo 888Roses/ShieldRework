@@ -33,7 +33,7 @@ public class BlocksAttacksComponentMixin {
         if (entity instanceof PlayerEntity player) {
             ShieldComponent component = ShieldComponent.get(player);
 
-            if (component.damage(player, hand, itemStack, itemDamage)) {
+            if (component.damage(player, hand, itemStack, itemDamage == 999999f ? 0 : itemDamage)) {
                 disableSound.ifPresent(sound -> world.playSound(
                         null,
                         entity.getX(), entity.getY(), entity.getZ(),

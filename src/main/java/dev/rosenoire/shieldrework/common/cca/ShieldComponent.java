@@ -7,22 +7,17 @@ import dev.rosenoire.shieldrework.common.index.ModSounds;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.ShieldItem;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.debug.gizmo.Gizmo;
-import net.minecraft.world.debug.gizmo.GizmoDrawing;
-import net.minecraft.world.debug.gizmo.TextGizmo;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.Component;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;
 
 public class ShieldComponent implements Component, AutoSyncedComponent, CommonTickingComponent {
-    public static final float MAX_HEALTH = 80;
+    public static final float MAX_HEALTH = 60;
 
     public final PlayerEntity player;
     private float currentHealth;
@@ -96,7 +91,7 @@ public class ShieldComponent implements Component, AutoSyncedComponent, CommonTi
     }
 
     public boolean canRegenerateHealth() {
-        return !isBroken() && player.getEntityWorld().getTime() - lastHitTick > 40;
+        return !isBroken() && player.getEntityWorld().getTime() - lastHitTick > 60;
     }
 
     public float lastHitTick() {
@@ -105,16 +100,6 @@ public class ShieldComponent implements Component, AutoSyncedComponent, CommonTi
 
     @Override
     public void tick() {
-        // if (player.getEntityWorld().isClient()) {
-        //     GizmoDrawing.text("Current Health: " + MathHelper.roundDownToMultiple(currentHealth() * 10f, 10) / 10f, player.getEntityPos().add(0, 3.2, 0), TextGizmo.Style.left(0xffffffff));
-        //     GizmoDrawing.text("Current Progress: " + MathHelper.roundDownToMultiple(currentHealthProgress() * 10f, 10) / 10f, player.getEntityPos().add(0, 3, 0), TextGizmo.Style.left(0xffffffff));
-        //     GizmoDrawing.text("Can Regenerate Health: " + canRegenerateHealth(), player.getEntityPos().add(0, 2.8, 0), TextGizmo.Style.left(0xffffffff));
-        //
-        //     float closestMultiple = MathHelper.roundUpToMultiple(MathHelper.ceil(currentHealthProgress() * 100), 10) / 100f;
-        //     int multiple = MathHelper.clamp(11 - MathHelper.roundUpToMultiple(MathHelper.ceil(currentHealthProgress() * 100), 10) / 10, 1, 10);
-        //     GizmoDrawing.text("Closest Multiple: " + multiple, player.getEntityPos().add(0, 2.6, 0), TextGizmo.Style.left(0xffffffff));
-        // }
-
         if (player.isUsingItem() && player.getActiveItem().isOf(Items.SHIELD)) {
             player.getActiveItem().set(ModDataComponentTypes.OWNER, player.getUuid());
         }
@@ -132,13 +117,14 @@ public class ShieldComponent implements Component, AutoSyncedComponent, CommonTi
 
     public boolean damage(PlayerEntity player, Hand hand, ItemStack itemStack, float itemDamage) {
         float lastHealth = currentHealth();
+        lastHitTick = player.getEntityWorld().getTime();
         removeHealth(itemDamage);
 
         float lastHealthProgress = getHealthProgress(lastHealth);
-        float currentHealthProgress = currentHealthProgress();
+        float currentHealthProgress = getHealthProgress(currentHealth);
         float closestMultiple = MathHelper.roundUpToMultiple(MathHelper.ceil(currentHealthProgress * 100), 25) / 100f;
 
-        if (lastHealthProgress > closestMultiple && currentHealthProgress <= closestMultiple && currentHealth() > 0) {
+        if (lastHealthProgress > closestMultiple && currentHealthProgress <= closestMultiple && currentHealth > 0) {
             float pitchIncrease = (1f - currentHealthProgress) * 0.35f;
 
             player.getEntityWorld().playSound(
