@@ -4,35 +4,31 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.rosenoire.shieldrework.common.cca.ShieldComponent;
 import dev.rosenoire.shieldrework.common.index.ModGameRules;
-import net.minecraft.component.type.BlocksAttacksComponent;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.tag.ItemTags;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.component.BlocksAttacks;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(LivingEntity.class)
 public class LivingEntityMixin {
-    @WrapOperation(method = "getDamageBlockedAmount", at = @At(value = "INVOKE", target = "Lnet/minecraft/component/type/BlocksAttacksComponent;getDamageReductionAmount(Lnet/minecraft/entity/damage/DamageSource;FD)F"))
-    private float shieldRework$getDamageBlockedAmount(BlocksAttacksComponent instance, DamageSource source, float damage, double angle, Operation<Float> original) {
+    @WrapOperation(method = "applyItemBlocking", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/component/BlocksAttacks;resolveBlockedDamage(Lnet/minecraft/world/damagesource/DamageSource;FD)F"))
+    private float shieldRework$getDamageBlockedAmount(BlocksAttacks instance, DamageSource source, float damage, double angle, Operation<Float> original) {
         LivingEntity livingEntity = (LivingEntity) (Object) this;
 
-        if (livingEntity instanceof PlayerEntity player) {
+        if (livingEntity instanceof Player player) {
             ShieldComponent shield = ShieldComponent.get(player);
 
             if (Math.toDegrees(angle) > 70) {
                 return 0;
             }
 
-            if (player.getEntityWorld() instanceof ServerWorld serverWorld) {
-                if (serverWorld.getGameRules().getValue(ModGameRules.SHIELD_DAMAGE_AXE_ONLY_GAMERULE)) {
-                    if (source.getWeaponStack() == null || !source.getWeaponStack().isIn(ItemTags.AXES)) {
+            if (player.level() instanceof ServerLevel serverWorld) {
+                if (serverWorld.getGameRules().get(ModGameRules.SHIELD_DAMAGE_AXE_ONLY_GAMERULE)) {
+                    if (source.getWeaponItem() == null || !source.getWeaponItem().is(ItemTags.AXES)) {
                         return 999999f;
                     }
                 }

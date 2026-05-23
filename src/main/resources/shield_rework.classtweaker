@@ -1,2 +1,2 @@
 classTweaker v1 named
-accessible method net/minecraft/entity/LivingEntity knockback (Lnet/minecraft/entity/LivingEntity;)V
+accessible method net/minecraft/world/entity/LivingEntity blockedByItem (Lnet/minecraft/world/entity/LivingEntity;)V

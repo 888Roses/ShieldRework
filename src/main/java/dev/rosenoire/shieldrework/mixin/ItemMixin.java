@@ -3,20 +3,20 @@ package dev.rosenoire.shieldrework.mixin;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.rosenoire.shieldrework.common.cca.ShieldComponent;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(Item.class)
 public class ItemMixin {
-    @WrapMethod(method = "isItemBarVisible")
+    @WrapMethod(method = "isBarVisible")
     private boolean shieldRework$isItemBarVisible(ItemStack stack, Operation<Boolean> original) {
-        if (stack.isOf(Items.SHIELD)) {
-            ClientPlayerEntity clientPlayer = MinecraftClient.getInstance().player;
+        if (stack.is(Items.SHIELD)) {
+            LocalPlayer clientPlayer = Minecraft.getInstance().player;
 
             if (clientPlayer != null && ShieldComponent.get(clientPlayer).currentHealthProgress() >= 1) {
                 return false;
@@ -28,28 +28,28 @@ public class ItemMixin {
         return original.call(stack);
     }
 
-    @WrapMethod(method = "getItemBarStep")
+    @WrapMethod(method = "getBarWidth")
     private int shieldRework$getItemBarStep(ItemStack stack, Operation<Integer> original) {
-        if (stack.isOf(Items.SHIELD)) {
-            ClientPlayerEntity clientPlayer = MinecraftClient.getInstance().player;
+        if (stack.is(Items.SHIELD)) {
+            LocalPlayer clientPlayer = Minecraft.getInstance().player;
 
             if (clientPlayer != null) {
                 float progress = ShieldComponent.get(clientPlayer).currentHealthProgress();
-                return MathHelper.ceil(progress * 13);
+                return Mth.ceil(progress * 13);
             }
         }
 
         return original.call(stack);
     }
 
-    @WrapMethod(method = "getItemBarColor")
+    @WrapMethod(method = "getBarColor")
     public int shieldRework$getItemBarColor(ItemStack stack, Operation<Integer> original) {
-        if (stack.isOf(Items.SHIELD)) {
-            ClientPlayerEntity clientPlayer = MinecraftClient.getInstance().player;
+        if (stack.is(Items.SHIELD)) {
+            LocalPlayer clientPlayer = Minecraft.getInstance().player;
 
             if (clientPlayer != null) {
                 float progress = ShieldComponent.get(clientPlayer).currentHealthProgress();
-                return MathHelper.hsvToRgb(progress / 3.0F, 1.0F, 1.0F);
+                return Mth.hsvToRgb(progress / 3.0F, 1.0F, 1.0F);
             }
         }
 

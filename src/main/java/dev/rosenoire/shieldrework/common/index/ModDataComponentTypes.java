@@ -1,22 +1,20 @@
 package dev.rosenoire.shieldrework.common.index;
 
 import dev.rosenoire.shieldrework.common.ShieldRework;
-import net.minecraft.component.ComponentType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Uuids;
-
 import java.util.UUID;
 import java.util.function.UnaryOperator;
+import net.minecraft.core.Registry;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 @SuppressWarnings("unchecked")
 public interface ModDataComponentTypes {
-    ComponentType<UUID> OWNER = register("owner", builder -> builder.codec(Uuids.CODEC).packetCodec(Uuids.PACKET_CODEC));
+    DataComponentType<UUID> OWNER = register("owner", builder -> builder.persistent(UUIDUtil.AUTHLIB_CODEC).networkSynchronized(UUIDUtil.STREAM_CODEC));
 
     static void register() {}
 
-    static <T> ComponentType<T> register(String id, UnaryOperator<ComponentType.Builder<T>> builderOperator) {
-        return (ComponentType<T>) Registry.register(Registries.DATA_COMPONENT_TYPE, ShieldRework.id(id), ((ComponentType.Builder)builderOperator.apply(ComponentType.builder())).build());
+    static <T> DataComponentType<T> register(String id, UnaryOperator<DataComponentType.Builder<T>> builderOperator) {
+        return (DataComponentType<T>) Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, ShieldRework.id(id), ((DataComponentType.Builder)builderOperator.apply(DataComponentType.builder())).build());
     }
 }

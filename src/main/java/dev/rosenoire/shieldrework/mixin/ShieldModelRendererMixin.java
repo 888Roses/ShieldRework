@@ -2,27 +2,27 @@ package dev.rosenoire.shieldrework.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.rosenoire.shieldrework.common.ShieldRework;
 import dev.rosenoire.shieldrework.common.cca.ShieldComponent;
 import dev.rosenoire.shieldrework.common.index.ModDataComponentTypes;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.TexturedRenderLayers;
-import net.minecraft.client.render.block.entity.BannerBlockEntityRenderer;
-import net.minecraft.client.render.command.OrderedRenderCommandQueue;
-import net.minecraft.client.render.entity.model.ShieldEntityModel;
-import net.minecraft.client.render.item.model.special.ShieldModelRenderer;
-import net.minecraft.client.render.model.ModelBaker;
-import net.minecraft.client.texture.SpriteHolder;
-import net.minecraft.client.util.SpriteIdentifier;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.component.ComponentMap;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.BannerPatternsComponent;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemDisplayContext;
-import net.minecraft.util.DyeColor;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.object.equipment.ShieldModel;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.BannerRenderer;
+import net.minecraft.client.renderer.special.ShieldSpecialRenderer;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.MaterialSet;
+import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,78 +32,78 @@ import org.spongepowered.asm.mixin.Unique;
 import java.util.Objects;
 import java.util.UUID;
 
-@Mixin(ShieldModelRenderer.class)
+@Mixin(ShieldSpecialRenderer.class)
 public class ShieldModelRendererMixin {
     @Shadow
     @Final
-    private ShieldEntityModel model;
+    private ShieldModel model;
 
     @Shadow
     @Final
-    private SpriteHolder spriteHolder;
+    private MaterialSet materials;
 
     @Unique
-    private static final SpriteIdentifier[] SHIELDS = new SpriteIdentifier[]{
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_" + 1)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_" + 2)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_" + 3)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_" + 4)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_" + 5)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_" + 6)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_" + 7)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_" + 8)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_" + 9)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_" + 10)),
+    private static final Material[] SHIELDS = new Material[]{
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_" + 1)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_" + 2)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_" + 3)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_" + 4)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_" + 5)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_" + 6)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_" + 7)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_" + 8)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_" + 9)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_" + 10)),
     };
 
     @Unique
-    private static final SpriteIdentifier[] PATTERN_SHIELDS = new SpriteIdentifier[]{
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_base_pattern_" + 1)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_base_pattern_" + 2)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_base_pattern_" + 3)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_base_pattern_" + 4)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_base_pattern_" + 5)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_base_pattern_" + 6)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_base_pattern_" + 7)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_base_pattern_" + 8)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_base_pattern_" + 9)),
-            new SpriteIdentifier(TexturedRenderLayers.SHIELD_PATTERNS_ATLAS_TEXTURE, ShieldRework.id("entity/shield/shield_base_pattern_" + 10)),
+    private static final Material[] PATTERN_SHIELDS = new Material[]{
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_base_pattern_" + 1)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_base_pattern_" + 2)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_base_pattern_" + 3)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_base_pattern_" + 4)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_base_pattern_" + 5)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_base_pattern_" + 6)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_base_pattern_" + 7)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_base_pattern_" + 8)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_base_pattern_" + 9)),
+            new Material(Sheets.SHIELD_SHEET, ShieldRework.id("entity/shield/shield_base_pattern_" + 10)),
     };
 
-    @WrapMethod(method = "render(Lnet/minecraft/component/ComponentMap;Lnet/minecraft/item/ItemDisplayContext;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;IIZI)V")
-    private void shieldRework$render(ComponentMap componentMap,
+    @WrapMethod(method = "submit(Lnet/minecraft/core/component/DataComponentMap;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IIZI)V")
+    private void shieldRework$render(DataComponentMap componentMap,
                                      ItemDisplayContext itemDisplayContext,
-                                     MatrixStack matrixStack,
-                                     OrderedRenderCommandQueue orderedRenderCommandQueue,
+                                     PoseStack matrixStack,
+                                     SubmitNodeCollector orderedRenderCommandQueue,
                                      int light,
                                      int overlay,
                                      boolean hasGlint,
                                      int outline,
                                      Operation<Void> original) {
 
-        matrixStack.push();
+        matrixStack.pushPose();
         matrixStack.scale(1.0F, -1.0F, -1.0F);
 
-        BannerPatternsComponent bannerPatternsComponent = componentMap != null
-                ? componentMap.getOrDefault(DataComponentTypes.BANNER_PATTERNS, BannerPatternsComponent.DEFAULT)
-                : BannerPatternsComponent.DEFAULT;
+        BannerPatternLayers bannerPatternsComponent = componentMap != null
+                ? componentMap.getOrDefault(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY)
+                : BannerPatternLayers.EMPTY;
 
-        DyeColor dyeColor = componentMap != null ? componentMap.get(DataComponentTypes.BASE_COLOR) : null;
+        DyeColor dyeColor = componentMap != null ? componentMap.get(DataComponents.BASE_COLOR) : null;
 
         boolean hasPattern = !bannerPatternsComponent.layers().isEmpty() || dyeColor != null;
-        SpriteIdentifier shieldSprite = hasPattern ? ModelBaker.SHIELD_BASE : ModelBaker.SHIELD_BASE_NO_PATTERN;
+        Material shieldSprite = hasPattern ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;
 
         @Nullable UUID ownerUuid = componentMap != null
                 ? componentMap.getOrDefault(ModDataComponentTypes.OWNER, null)
                 : null;
 
         if (ownerUuid != null) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            if (client.world != null) {
-                PlayerEntity owner = client.world.getPlayerByUuid(ownerUuid);
+            Minecraft client = Minecraft.getInstance();
+            if (client.level != null) {
+                Player owner = client.level.getPlayerByUUID(ownerUuid);
                 ShieldComponent component = ShieldComponent.get(owner);
 
-                int multiple = MathHelper.clamp(11 - MathHelper.roundUpToMultiple(MathHelper.ceil(component.currentHealthProgress() * 100), 10) / 10, 1, 10);
+                int multiple = Mth.clamp(11 - Mth.roundToward(Mth.ceil(component.currentHealthProgress() * 100), 10) / 10, 1, 10);
 
                 if (!hasPattern) {
                     shieldSprite = SHIELDS[multiple - 1];
@@ -114,12 +114,12 @@ public class ShieldModelRendererMixin {
         }
 
         orderedRenderCommandQueue.submitModelPart(
-                this.model.getHandle(),
+                this.model.handle(),
                 matrixStack,
-                this.model.getLayer(shieldSprite.getAtlasId()),
+                this.model.renderType(shieldSprite.atlasLocation()),
                 light,
                 overlay,
-                this.spriteHolder.getSprite(shieldSprite),
+                this.materials.get(shieldSprite),
                 false,
                 false,
                 -1,
@@ -128,8 +128,8 @@ public class ShieldModelRendererMixin {
         );
 
         if (hasPattern) {
-            BannerBlockEntityRenderer.renderCanvas(
-                    this.spriteHolder,
+            BannerRenderer.submitPatterns(
+                    this.materials,
                     matrixStack,
                     orderedRenderCommandQueue,
                     light,
@@ -146,12 +146,12 @@ public class ShieldModelRendererMixin {
             );
         } else {
             orderedRenderCommandQueue.submitModelPart(
-                    this.model.getPlate(),
+                    this.model.plate(),
                     matrixStack,
-                    this.model.getLayer(shieldSprite.getAtlasId()),
+                    this.model.renderType(shieldSprite.atlasLocation()),
                     light,
                     overlay,
-                    this.spriteHolder.getSprite(shieldSprite),
+                    this.materials.get(shieldSprite),
                     false,
                     hasGlint,
                     -1,
@@ -160,6 +160,6 @@ public class ShieldModelRendererMixin {
             );
         }
 
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 }
