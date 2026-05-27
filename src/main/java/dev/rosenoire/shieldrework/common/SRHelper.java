@@ -22,4 +22,8 @@ public interface SRHelper {
         for (var i = 0; i < count; i++) builder.add(factory.apply(i));
         return builder.build().toArray(arrayFactory);
     }
+
+    static float clamp01(float delta) {
+        return Math.clamp(delta, 0, 1);
+    }
 }
