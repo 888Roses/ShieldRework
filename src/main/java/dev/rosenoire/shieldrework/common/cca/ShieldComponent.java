@@ -4,6 +4,7 @@ import dev.rosenoire.shieldrework.common.index.ModDataComponentTypes;
 import dev.rosenoire.shieldrework.common.index.ModEntityComponents;
 import dev.rosenoire.shieldrework.common.index.ModItemTags;
 import dev.rosenoire.shieldrework.common.index.ModSounds;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -12,11 +13,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
-import org.ladysnake.cca.api.v3.component.Component;
+import org.ladysnake.cca.api.v3.component.ComponentV3;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;
 
-public class ShieldComponent implements Component, AutoSyncedComponent, CommonTickingComponent {
+@SuppressWarnings("UnstableApiUsage")
+public class ShieldComponent implements ComponentV3, AutoSyncedComponent, CommonTickingComponent {
     public static final float MAX_HEALTH = 60;
 
     public final Player player;
@@ -130,7 +132,7 @@ public class ShieldComponent implements Component, AutoSyncedComponent, CommonTi
             player.level().playSound(
                     null, player.getX(), player.getY(), player.getZ(),
                     ModSounds.SHIELD_DAMAGED, player.getSoundSource(),
-                    1.2F, 0.9F + player.level().random.nextFloat() * pitchIncrease
+                    1.2F, 0.9F + player.level().getRandom().nextFloat() * pitchIncrease
             );
         }
 

@@ -1,7 +1,12 @@
 package dev.rosenoire.shieldrework.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import dev.rosenoire.shieldrework.common.SRHelper;
 import dev.rosenoire.shieldrework.common.cca.ShieldComponent;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,17 +34,24 @@ public class BlocksAttacksComponentMixin {
     private Optional<Holder<SoundEvent>> disableSound;
 
     @Inject(method = "hurtBlockingItem", at = @At("HEAD"), cancellable = true)
-    public void shield_rework$onShieldHit(Level world, ItemStack itemStack, LivingEntity entity, InteractionHand hand, float itemDamage, CallbackInfo ci) {
-        if (entity instanceof Player player) {
-            ShieldComponent component = ShieldComponent.get(player);
+    public void hurtBlockingItem$hurtShieldComponent(
+            Level level,
+            ItemStack item,
+            LivingEntity user,
+            InteractionHand hand,
+            float damage,
+            CallbackInfo ci
+    ) {
+        if (user instanceof Player player) {
+            var component = ShieldComponent.get(player);
 
-            if (component.damage(player, hand, itemStack, itemDamage == 999999f ? 0 : itemDamage)) {
-                disableSound.ifPresent(sound -> world.playSound(
+            if (component.damage(player, hand, item, damage == SRHelper.AXE_BREAKING_DAMAGE ? 0 : damage)) {
+                disableSound.ifPresent(sound -> level.playSound(
                         null,
-                        entity.getX(), entity.getY(), entity.getZ(),
-                        sound, entity.getSoundSource(), // Ellie Loves Rose very much, she might never find this put i love her alot :D
+                        user.getX(), user.getY(), user.getZ(),
+                        sound, user.getSoundSource(), // Ellie Loves Rose very much, she might never find this put i love her alot :D
                         // Rose loves Ellie so much too omgg wth ><< <3<3
-                        0.8F, 0.8F + world.random.nextFloat() * 0.4F
+                        0.8F, 0.8F + level.getRandom().nextFloat() * 0.4F
                 ));
             }
 
@@ -47,8 +59,18 @@ public class BlocksAttacksComponentMixin {
         }
     }
 
-    @ModifyReturnValue(method = "resolveBlockedDamage", at = @At("TAIL"))
-    public float shield_rework$getDamageReductionAmount(float original, DamageSource source, float damage, double angle) {
-        return Mth.clamp(original * ShieldComponent.getDamageMultiplier(source.getWeaponItem()), 0, ShieldComponent.MAX_HEALTH);
+    @WrapMethod(method = "resolveBlockedDamage")
+    public float shield_rework$getDamageReductionAmount(
+            DamageSource source,
+            float dealtDamage,
+            double angle,
+            Operation<Float> original
+    ) {
+        return Mth.clamp(
+                original.call(source, dealtDamage, angle) *
+                        ShieldComponent.getDamageMultiplier(source.getWeaponItem()),
+                0,
+                ShieldComponent.MAX_HEALTH
+        );
     }
 }

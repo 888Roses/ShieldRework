@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Player.class)
 public class PlayerEntityMixin {
     @Inject(method = "blockUsingItem", at = @At("HEAD"), cancellable = true)
-    public void shield_rework$takeShieldHit(ServerLevel world, LivingEntity attacker, CallbackInfo ci) {
+    public void shield_rework$takeShieldHit(ServerLevel level, LivingEntity attacker, CallbackInfo ci) {
         attacker.blockedByItem((Player) (Object) this);
         ci.cancel();
     }
